@@ -92,16 +92,6 @@ export default function Beranda() {
         </Link>
       </View>
 
-      <Link href="/harga" asChild>
-        <Pressable style={st.ubinFoto}>
-          <Foto nama="jepit" />
-          <View style={st.fotoTeks}>
-            <Text style={st.fotoKecil}>Daftar harga</Text>
-            <Text style={st.fotoJudul}>Kiloan mulai {rupiah(LAYANAN.lipat.hargaKg)}/kg</Text>
-            <Text style={st.fotoKecil}>Satuan, ekspres 6 jam, dan perawatan noda</Text>
-          </View>
-        </Pressable>
-      </Link>
 
       <View style={st.bento}>
         <Link href="/poin" asChild>
@@ -123,6 +113,17 @@ export default function Beranda() {
           </Pressable>
         </Link>
       </View>
+
+      <Link href="/harga" asChild>
+        <Pressable style={st.ubinFoto}>
+          <Foto nama="jepit" />
+          <View style={st.fotoTeks}>
+            <Text style={st.fotoKecil}>Daftar harga</Text>
+            <Text style={st.fotoJudul}>Kiloan mulai {rupiah(LAYANAN.lipat.hargaKg)}/kg</Text>
+            <Text style={st.fotoKecil}>Satuan, ekspres 6 jam, dan perawatan noda</Text>
+          </View>
+        </Pressable>
+      </Link>
 
       <Kartu style={{ gap: 4, paddingVertical: 8 }}>
         <View style={[st.barisJudul, { paddingTop: 6 }]}>
