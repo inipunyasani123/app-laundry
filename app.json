@@ -1,17 +1,23 @@
 {
   "expo": {
-    "name": "laundry",
-    "slug": "laundry",
+    "name": "Busa Ungu",
+    "slug": "app-laundry",
     "version": "1.0.0",
+    "scheme": "busaungu",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F0FB",
+    "primaryColor": "#5B2FD0",
+    "description": "Demo aplikasi pelanggan laundry fiktif buatan PintuWeb: status cucian per tahap, jemput-antar, nota digital, poin & promo.",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "id.pintuweb.demo.laundry"
     },
     "android": {
+      "package": "id.pintuweb.demo.laundry",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#5B2FD0",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -19,7 +25,35 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "output": "static",
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "name": "Busa Ungu",
+      "shortName": "Busa Ungu",
+      "lang": "id",
+      "themeColor": "#5B2FD0",
+      "backgroundColor": "#F4F0FB"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://app-laundry.pintuweb.id",
+          "sitemap": false
+        }
+      ],
+      "expo-status-bar",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Calistoga-Regular.ttf"
+          ]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
     }
   }
 }
