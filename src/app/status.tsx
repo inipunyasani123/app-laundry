@@ -9,7 +9,7 @@ import { JalurKomplain, PenilaianKu } from '@/components/ulasan';
 import { Jahitan, Judul, Kartu, Kerangka, Lencana, Teks, Tombol } from '@/components/ui';
 import { KURIR, LAYANAN, MEREK, TAHAP, kg, rupiah } from '@/lib/katalog';
 import { hitungNota, indeksTahap, jamSlot, kemajuanTahap, lunas, namaPewangi, namaTahapKini, perkiraanSelesai, slotAntar, teksSisa } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 import { hariKalimat, hariRelatif, jam, sisaWaktu } from '@/lib/waktu';
@@ -17,7 +17,7 @@ import { hariKalimat, hariRelatif, jam, sisaWaktu } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/status',
-    'Status Cucian per Tahap · Busa Ungu',
+    JUDUL['/status'],
     'Lacak cucian dari diterima, ditimbang, dicuci, dikeringkan, disetrika, sampai diantar, lengkap dengan perkiraan selesai dalam WIB.',
   );
 }

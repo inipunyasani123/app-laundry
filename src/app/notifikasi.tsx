@@ -5,7 +5,7 @@ import type { NamaIkon } from '@/components/ikon-data';
 import { KepalaDalam, Layar } from '@/components/kerangka';
 import { Judul, Kartu, Kerangka, Lencana, Teks } from '@/components/ui';
 import type { Notifikasi } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { Kosong } from '@/components/tanda';
 import { sudut, warna } from '@/lib/tema';
@@ -14,7 +14,7 @@ import { hariRelatif, jam } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/notifikasi',
-    'Notifikasi Cucian · Busa Ungu',
+    JUDUL['/notifikasi'],
     'Kabar tiap tahap cucian, jadwal jemput, pembayaran, dan promo, dikelompokkan per hari dalam WIB. Notifikasi di demo ini simulasi.',
   );
 }

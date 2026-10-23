@@ -8,13 +8,13 @@ import { KepalaDalam, Layar } from '@/components/kerangka';
 import { Judul, Kartu, Kerangka, Teks, Tombol } from '@/components/ui';
 import { LAYANAN, kg, rupiah } from '@/lib/katalog';
 import { METODE, hitungNota, nilaiVoucher, type Metode } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 import { jam, tglBulan } from '@/lib/waktu';
 
 export function generateMetadata() {
-  return meta('/bayar', 'Pembayaran Simulasi · Busa Ungu', 'Simulasi pembayaran nota laundry: QRIS, dompet digital, virtual account, atau tunai ke kurir. Tidak ada uang sungguhan yang berpindah.', {
+  return meta('/bayar', JUDUL['/bayar'], 'Simulasi pembayaran nota laundry: QRIS, dompet digital, virtual account, atau tunai ke kurir. Tidak ada uang sungguhan yang berpindah.', {
     indeks: false,
   });
 }

@@ -9,7 +9,7 @@ import { Busa, Kosong, TiketCucian, TiketMini } from '@/components/tanda';
 import { Judul, Kartu, Kerangka, Teks } from '@/components/ui';
 import { LAYANAN, MEREK, SLOT_JEMPUT, ribuan, rupiah } from '@/lib/katalog';
 import { jamSlot } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufJudul, sudut, warna } from '@/lib/tema';
 import { JAM, lalu, padaJam, salam, tanggalPendek, jam } from '@/lib/waktu';
@@ -17,7 +17,7 @@ import { JAM, lalu, padaJam, salam, tanggalPendek, jam } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/',
-    'Busa Ungu: Demo Aplikasi Pelanggan Laundry | PintuWeb',
+    JUDUL['/'],
     'Demo aplikasi laundry Android & iOS: pantau cucian per tahap, pesan jemput-antar, nota digital, bayar simulasi, poin dan promo. Buatan PintuWeb.',
   );
 }

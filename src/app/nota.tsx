@@ -6,7 +6,7 @@ import { JalurKomplain, PenilaianKu } from '@/components/ulasan';
 import { Kartu, Kerangka, Teks, Tombol } from '@/components/ui';
 import { LAYANAN, MEREK, kg, rupiah } from '@/lib/katalog';
 import { METODE, hitungNota, indeksTahap, lunas, namaPewangi, namaTahapKini } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, warna } from '@/lib/tema';
 import { jam, tanggalPanjang } from '@/lib/waktu';
@@ -14,7 +14,7 @@ import { jam, tanggalPanjang } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/nota',
-    'Nota Digital Laundry · Busa Ungu',
+    JUDUL['/nota'],
     'Nota digital tiap order: berat hasil timbang, item satuan, perawatan noda, diskon voucher, total, status bayar, dan poin yang didapat.',
   );
 }

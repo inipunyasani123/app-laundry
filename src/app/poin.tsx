@@ -5,7 +5,7 @@ import { KepalaMerek, Layar } from '@/components/kerangka';
 import { Busa } from '@/components/tanda';
 import { Judul, Kartu, Kerangka, Teks, Tombol } from '@/components/ui';
 import { TINGKAT, TUKAR_POIN, ribuan } from '@/lib/katalog';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 import { tglBulan } from '@/lib/waktu';
@@ -13,7 +13,7 @@ import { tglBulan } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/poin',
-    'Poin, Promo & Kartu Cap Laundry · Busa Ungu',
+    JUDUL['/poin'],
     'Kumpulkan 1 poin tiap Rp1.000, naik tingkat member, tukar poin jadi voucher, dan isi kartu cap: 10 cucian kiloan dapat 3 kg gratis.',
   );
 }

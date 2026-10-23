@@ -3,11 +3,11 @@ import Gambar from '@/components/Gambar';
 import type { Bentuk } from '@/components/ikon-data';
 import { Layar } from '@/components/kerangka';
 import { Judul, Teks, Tombol } from '@/components/ui';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { hurufAngka, warna } from '@/lib/tema';
 
 export function generateMetadata() {
-  return meta('/404', 'Halaman Tidak Ditemukan · Busa Ungu', 'Halaman ini hilang seperti kaus kaki sebelah. Kembali ke beranda Busa Ungu untuk memantau cucianmu.', { indeks: false });
+  return meta('/404', JUDUL['/404'], 'Halaman ini hilang seperti kaus kaki sebelah. Kembali ke beranda Busa Ungu untuk memantau cucianmu.', { indeks: false });
 }
 
 /** Ilustrasi kaus kaki yang tinggal sebelah (viewBox 120×120). */

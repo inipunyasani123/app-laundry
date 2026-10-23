@@ -5,13 +5,13 @@ import Ikon from '@/components/Ikon';
 import { KepalaDalam, Layar } from '@/components/kerangka';
 import { Jahitan, Judul, Kartu, Lencana, Teks, Tombol } from '@/components/ui';
 import { BERAT_MINIMUM, EKSTRA, LAYANAN, MEREK, PEWANGI, SATUAN, URUTAN_LAYANAN, rupiah } from '@/lib/katalog';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 
 export function generateMetadata() {
   return meta(
     '/harga',
-    'Daftar Harga Laundry Kiloan & Satuan · Busa Ungu',
+    JUDUL['/harga'],
     'Harga contoh laundry kiloan reguler, sehari jadi, kilat 6 jam, cuci lipat, item satuan seperti bed cover dan sepatu, plus perawatan noda.',
   );
 }

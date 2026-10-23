@@ -6,7 +6,7 @@ import { KepalaMerek, Layar } from '@/components/kerangka';
 import { Chip, Judul, Kartu, Kerangka, Lencana, Teks, Tombol } from '@/components/ui';
 import { LAYANAN, kg, rupiah } from '@/lib/katalog';
 import { aktif, hitungNota, lunas, namaTahapKini, type Pesanan } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import Pengantar from '@/components/Pengantar';
 import { Kosong } from '@/components/tanda';
@@ -16,7 +16,7 @@ import { tanggalPendek } from '@/lib/waktu';
 export function generateMetadata() {
   return meta(
     '/riwayat',
-    'Riwayat Order & Nota Laundry · Busa Ungu',
+    JUDUL['/riwayat'],
     'Semua order laundry dalam satu daftar: tanggal masuk WIB, layanan, berat, total, status bayar, dan tombol pesan lagi dengan catatan yang sama.',
   );
 }

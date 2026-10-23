@@ -4,6 +4,20 @@ export const ASAL = 'https://app-laundry.pintuweb.id';
 const OG = `${ASAL}/og.jpg`;
 const OG_ALT = 'Busa Ungu, demo aplikasi pelanggan laundry: tiket cucian kuning dan label tahap cuci';
 
+/** Judul tiap rute: dipakai generateMetadata (HTML statis) dan judul tab saat pindah halaman. */
+export const JUDUL: Record<string, string> = {
+  '/': 'Busa Ungu: Demo Aplikasi Pelanggan Laundry | PintuWeb',
+  '/404': 'Halaman Tidak Ditemukan · Busa Ungu',
+  '/bayar': 'Pembayaran Simulasi · Busa Ungu',
+  '/harga': 'Daftar Harga Laundry Kiloan & Satuan · Busa Ungu',
+  '/nota': 'Nota Digital Laundry · Busa Ungu',
+  '/notifikasi': 'Notifikasi Cucian · Busa Ungu',
+  '/pesan': 'Pesan Jemput-Antar Laundry · Busa Ungu',
+  '/poin': 'Poin, Promo & Kartu Cap Laundry · Busa Ungu',
+  '/riwayat': 'Riwayat Order & Nota Laundry · Busa Ungu',
+  '/status': 'Status Cucian per Tahap · Busa Ungu',
+};
+
 /** Metadata statis per rute (SDK 58: generateMetadata, bukan <Head>). */
 export function meta(path: string, judul: string, deskripsi: string, opsi: { indeks?: boolean } = {}): Metadata {
   const url = `${ASAL}${path === '/' ? '/' : path}`;

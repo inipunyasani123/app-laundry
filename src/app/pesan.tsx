@@ -10,7 +10,7 @@ import {
   BERAT_MINIMUM, EKSTRA, LAYANAN, NODA, PEWANGI, SATUAN, SLOT_JEMPUT, URUTAN_LAYANAN, rupiah, type KodeLayanan,
 } from '@/lib/katalog';
 import { ALAMAT, jamSlot, namaPewangi, susunJadwal } from '@/lib/pesanan';
-import { meta } from '@/lib/seo';
+import { JUDUL, meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 import { HARI_MS, JAM, MENIT, bagianWIB, hariKalimat, hariRelatif, hariSingkat, jam, padaJam, tglBulan } from '@/lib/waktu';
@@ -18,7 +18,7 @@ import { HARI_MS, JAM, MENIT, bagianWIB, hariKalimat, hariRelatif, hariSingkat, 
 export function generateMetadata() {
   return meta(
     '/pesan',
-    'Pesan Jemput-Antar Laundry · Busa Ungu',
+    JUDUL['/pesan'],
     'Tiga langkah: pilih cucian dan item satuan, slot jam jemput dan alamat, lalu catatan noda dan pewangi. Kurir menjemput dan mengantar balik.',
   );
 }
