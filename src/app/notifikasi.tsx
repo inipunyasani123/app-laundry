@@ -7,6 +7,7 @@ import { Judul, Kartu, Kerangka, Lencana, Teks } from '@/components/ui';
 import type { Notifikasi } from '@/lib/pesanan';
 import { meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
+import { Kosong } from '@/components/tanda';
 import { sudut, warna } from '@/lib/tema';
 import { hariRelatif, jam } from '@/lib/waktu';
 
@@ -18,7 +19,7 @@ export function generateMetadata() {
   );
 }
 
-const IKON_JENIS: Record<Notifikasi['jenis'], NamaIkon> = { tahap: 'bak', bayar: 'dompet', promo: 'hadiah', jemput: 'motor' };
+const IKON_JENIS: Record<Notifikasi['jenis'], NamaIkon> = { tahap: 'bak', bayar: 'dompet', promo: 'hadiah', jemput: 'motor', komplain: 'komplain' };
 
 export default function HalamanNotifikasi() {
   const { siap, kini, notifikasi, dibaca, tandaiDibaca, tandaiSemua, notifAktif, setNotifAktif, belumDibaca } = useBusa();
@@ -69,6 +70,8 @@ export default function HalamanNotifikasi() {
           <Kerangka tinggi={80} />
           <Kerangka tinggi={80} />
         </>
+      ) : kelompok.length === 0 ? (
+        <Kosong judul="Belum ada kabar" isi="Kabar tahap cucian, pembayaran, dan promo akan muncul di sini." aksi={{ label: 'Jadwalkan jemput', href: '/pesan' }} />
       ) : (
         kelompok.map((g) => (
           <View key={g.judul} style={{ gap: 8 }}>

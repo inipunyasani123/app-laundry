@@ -2,7 +2,7 @@ import {
   BERAT_MINIMUM, EKSTRA, KURIR, LAYANAN, PEWANGI, PORSI_TAHAP, SATUAN, TAHAP, VOUCHER, rupiah,
   type KodeLayanan, type KodeTahap,
 } from './katalog';
-import { HARI_MS, JAM, MENIT, bulatkan, kerja, padaJam } from './waktu';
+import { HARI_MS, JAM, MENIT, bagianWIB, bulatkan, kerja, menitKerjaAntara, outletBuka, padaJam } from './waktu';
 
 export type Metode = 'qris' | 'dompet' | 'va' | 'tunai';
 
@@ -59,7 +59,6 @@ export function susunJadwal(diterima: number, layanan: KodeLayanan, antar: boole
 
 /** Contoh pesanan yang selalu relatif terhadap `a` (jangkar = saat data contoh dibuat). */
 export function pesananContoh(a: number): Pesanan[] {
-  const r = (ms: number) => bulatkan(a + ms);
   /** Geser dalam menit kerja dari jangkar. */
   const k = (menit: number) => bulatkan(kerja(a, menit));
   const dasar = {
@@ -138,7 +137,7 @@ export function pesananContoh(a: number): Pesanan[] {
     pewangi: 'lavender',
     catatan: 'Pagar hijau, titip ke satpam kalau saya belum pulang',
     jadwal: susunJadwal(mulai + 50 * MENIT, 'sehari', true),
-    dibuat: r(-(40 * MENIT)),
+    dibuat: k(-40),
   };
 
   const riwayat = (
@@ -159,16 +158,36 @@ export function pesananContoh(a: number): Pesanan[] {
       satuan,
       pewangi: 'lavender',
       jadwal,
-      bayar: { metode: bayar, waktu: jadwal.siap + 30 * MENIT, diskon: 0 },
+      bayar: { metode: bayar, waktu: bulatkan(kerja(jadwal.siap, 30)), diskon: 0 },
       dibuat: diterima - JAM,
       ...extra,
     };
+  };
+
+  // Order yang baru saja sampai (±45 menit kerja lalu): untuk penilaian & jalur komplain.
+  const baruSampai: Pesanan = {
+    ...dasar,
+    no: 'BU-24115',
+    layanan: 'sehari',
+    antar: true,
+    jemput: k(-(16 * 60 + 40)),
+    beratPerkiraan: 6,
+    berat: 5.8,
+    satuan: [{ kode: 'selimut', qty: 1 }],
+    noda: ['Lumpur'],
+    catatanNoda: 'Celana panjang abu, lutut kiri',
+    pewangi: 'bayi',
+    catatan: 'Baju anak, tolong pewangi yang lembut',
+    jadwal: susunJadwal(k(-16 * 60), 'sehari', true),
+    bayar: { metode: 'dompet', waktu: k(-(15 * 60 + 30)), diskon: 0 },
+    dibuat: k(-17 * 60),
   };
 
   return [
     aktif1,
     aktif2,
     jemput3,
+    baruSampai,
     riwayat('BU-24109', 3, 9, 'reguler', 5.2, [], true, 'dompet'),
     riwayat('BU-24097', 9, 8, 'kilat', 2.0, [{ kode: 'kebaya', qty: 1 }], false, 'tunai', { pewangi: 'melati' }),
     riwayat('BU-24083', 16, 10, 'reguler', 6.1, [{ kode: 'sprei', qty: 1 }], true, 'qris', {
@@ -179,7 +198,7 @@ export function pesananContoh(a: number): Pesanan[] {
     riwayat('BU-24041', 47, 15, 'reguler', 4.0, [{ kode: 'bedcover-k', qty: 1 }], true, 'qris'),
   ].map((p) => {
     // Diskon voucher contoh pada satu riwayat
-    if (p.no === 'BU-24083' && p.bayar) {
+    if (p.no === 'BU-24083' && p.bayar && [2, 3, 4].includes(bagianWIB(p.bayar.waktu).hari)) {
       const n = hitungNota(p, Number.MAX_SAFE_INTEGER);
       p.bayar = { ...p.bayar, voucher: 'HEMATTENGAH', diskon: Math.min(10000, Math.round((n.kiloan * 0.1) / 100) * 100) };
     }
@@ -267,6 +286,7 @@ export function nilaiVoucher(kode: string, p: Pesanan, kini: number) {
   const n = hitungNota({ ...p, bayar: undefined }, kini);
   const v = VOUCHER.find((x) => x.kode === kode);
   if (v) {
+    if (v.hari && !v.hari.includes(bagianWIB(kini).hari)) return 0;
     if (v.jenis === 'persen') return Math.min(v.maks ?? Infinity, Math.round((n.kiloan * v.nilai) / 100 / 100) * 100);
     if (v.jenis === 'potong') return p.satuan.some((s) => s.kode.startsWith('bedcover')) ? v.nilai : 0;
     return 0; // ongkir: jarak contoh ≤ 3 km, jadi tidak mengurangi nota
@@ -284,7 +304,7 @@ export interface Notifikasi {
   judul: string;
   isi: string;
   no?: string;
-  jenis: 'tahap' | 'bayar' | 'promo' | 'jemput';
+  jenis: 'tahap' | 'bayar' | 'promo' | 'jemput' | 'komplain';
 }
 
 export function notifikasiDari(pesanan: Pesanan[], kini: number, jangkar: number): Notifikasi[] {
@@ -324,11 +344,23 @@ export function notifikasiDari(pesanan: Pesanan[], kini: number, jangkar: number
       push({ id: `${p.no}:bayar`, waktu: p.bayar.waktu, jenis: 'bayar', no: p.no, judul: 'Pembayaran berhasil', isi: `${p.no} lunas lewat ${METODE[p.bayar.metode].nama} (simulasi). +${n.poin} poin.` });
     }
   }
-  out.push({
-    id: `promo:${jangkar}`, waktu: jangkar - 5 * JAM, jenis: 'promo',
-    judul: 'Voucher tengah pekan aktif', isi: 'Diskon 10% semua kiloan dengan kode HEMATTENGAH. Cek di menu Poin.',
-  });
+  void jangkar;
+  out.push(promoTerkini(kini));
   return out.filter((n) => n.waktu <= kini).sort((x, y) => y.waktu - x.waktu);
+}
+
+/** Kabar promo pagi (07.10 WIB) yang isinya sesuai hari, bukan promo "tengah pekan" di hari Jumat. */
+export function promoTerkini(kini: number): Notifikasi {
+  let w = padaJam(kini, 7, 10);
+  if (w > kini) w = padaJam(kini - HARI_MS, 7, 10);
+  const h = bagianWIB(w).hari;
+  if (h >= 2 && h <= 4) {
+    return { id: `promo:${w}`, waktu: w, jenis: 'promo', judul: 'Hemat tengah pekan', isi: 'Diskon 10% semua kiloan dengan kode HEMATTENGAH, berlaku Selasa–Kamis.' };
+  }
+  if (h === 1) {
+    return { id: `promo:${w}`, waktu: w, jenis: 'promo', judul: 'Ongkir jauh gratis', isi: 'Rumah 3–6 km dari outlet? Pakai ANTARJAUH, jemput-antar gratis sekali pakai.' };
+  }
+  return { id: `promo:${w}`, waktu: w, jenis: 'promo', judul: 'Bed cover akhir pekan', isi: 'Cuci bed cover lebih ringan Rp5.000 dengan kode BEDCOVER5. Cek di menu Poin.' };
 }
 
 export function jamSlot(mulai: number) {
@@ -338,3 +370,45 @@ export function jamSlot(mulai: number) {
   };
   return `${f(mulai)}–${f(mulai + 2 * JAM)}`;
 }
+
+/* ---------- Kemajuan tahap (untuk kepala Status) ---------- */
+
+export interface Kemajuan {
+  i: number;
+  persen: number;
+  sisaMenit: number;
+  akhir: number;
+  tutup: boolean;
+}
+
+/** Seberapa jauh tahap aktif berjalan, dihitung dalam menit kerja (outlet 07.00–21.00 WIB). */
+export function kemajuanTahap(p: Pesanan, kini: number): Kemajuan {
+  const i = indeksTahap(p, kini);
+  const tutup = !outletBuka(kini);
+  if (i === 6) return { i, persen: 1, sisaMenit: 0, akhir: p.jadwal.tuntas, tutup };
+  if (i === -1) {
+    const akhir = p.jemput ?? p.jadwal.diterima;
+    return { i, persen: 0, sisaMenit: Math.max(0, (akhir - kini) / MENIT), akhir, tutup };
+  }
+  const mulai = p.jadwal[TAHAP[i].kode];
+  const akhir = i < 5 ? p.jadwal[TAHAP[i + 1].kode] : p.antar ? p.jadwal.tuntas : p.jadwal.siap;
+  if (i === 5 && !p.antar) return { i, persen: 1, sisaMenit: 0, akhir, tutup };
+  const total = Math.max(1, menitKerjaAntara(mulai, akhir));
+  const jalan = menitKerjaAntara(mulai, kini);
+  return { i, persen: Math.min(0.99, jalan / total), sisaMenit: Math.max(1, Math.round(menitKerjaAntara(kini, akhir))), akhir, tutup };
+}
+
+export function teksSisa(menit: number) {
+  if (menit < 60) return `±${Math.max(1, Math.round(menit / 5) * 5 || 1)} menit`;
+  const j = Math.floor(menit / 60);
+  const m = Math.round((menit - j * 60) / 5) * 5;
+  return m && j < 5 ? `±${j} jam ${m} menit` : `±${Math.round(menit / 60)} jam`;
+}
+
+/** Jendela antar 2 jam yang memuat perkiraan tiba. */
+export function slotAntar(p: Pesanan) {
+  const mulai = Math.floor((p.jadwal.tuntas - 60 * MENIT + 7 * JAM) / JAM) * JAM - 7 * JAM;
+  return mulai;
+}
+
+export const BATAS_KOMPLAIN = 24 * JAM;

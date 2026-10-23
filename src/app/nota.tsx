@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { KepalaDalam, Layar, Logo } from '@/components/kerangka';
 import { TepiGerigi } from '@/components/tanda';
+import { JalurKomplain, PenilaianKu } from '@/components/ulasan';
 import { Kartu, Kerangka, Teks, Tombol } from '@/components/ui';
 import { LAYANAN, MEREK, kg, rupiah } from '@/lib/katalog';
 import { METODE, hitungNota, indeksTahap, lunas, namaPewangi, namaTahapKini } from '@/lib/pesanan';
@@ -100,7 +101,7 @@ export default function Nota() {
           <Info label="Pembayaran" isi={p.bayar ? `${METODE[p.bayar.metode].nama} (simulasi)${p.bayar.metode !== 'tunai' ? ` · ${jam(p.bayar.waktu)} WIB` : ''}` : 'Belum dibayar'} />
           <Info label="Poin" isi={sudahLunas ? `+${n.poin} poin masuk` : `+${n.poin} poin setelah lunas`} />
           <Info label="Pewangi" isi={namaPewangi(p.pewangi)} />
-          <Text style={[st.kecil, { textAlign: 'center', marginTop: 10 }]}>Simpan nota ini. Komplain maksimal 1×24 jam setelah cucian diterima.</Text>
+          <Text style={[st.kecil, { textAlign: 'center', marginTop: 10 }]}>Simpan nota ini. Komplain maksimal 1×24 jam setelah cucian diterima, lewat tombol di bawah nota.</Text>
           <Text style={[st.kecil, { textAlign: 'center', fontFamily: hurufAngka, letterSpacing: 2, marginTop: 6 }]} aria-hidden>
             ✶ ✶ ✶ {p.no} ✶ ✶ ✶
           </Text>
@@ -108,6 +109,8 @@ export default function Nota() {
         <TepiGerigi terbalik />
       </View>
 
+      <PenilaianKu p={p} />
+      <JalurKomplain p={p} />
       {!p.bayar && indeksTahap(p, kini) < 6 ? (
         <Tombol label={`Bayar ${rupiah(n.total)}`} ikon="dompet" href={{ pathname: '/bayar', params: { no: p.no } }} />
       ) : null}
@@ -139,7 +142,7 @@ const st = StyleSheet.create({
   infoIsi: { fontSize: 13, color: warna.tinta, fontWeight: '600', flexShrink: 1, textAlign: 'right' },
   item: { flexDirection: 'row', gap: 12, paddingVertical: 5, alignItems: 'flex-start' },
   itemNama: { fontSize: 14, fontWeight: '700', color: warna.tinta },
-  angka: { fontFamily: hurufAngka, fontSize: 14, color: warna.tinta },
+  angka: { fontFamily: hurufAngka, fontSize: 14, color: warna.tinta, fontVariant: ['tabular-nums'] },
   totalLabel: { flex: 1, fontFamily: hurufJudul, fontSize: 20, color: warna.tinta },
   total: { fontFamily: hurufJudul, fontSize: 24, color: warna.unguTua },
 });

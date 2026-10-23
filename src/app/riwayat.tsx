@@ -8,6 +8,8 @@ import { LAYANAN, kg, rupiah } from '@/lib/katalog';
 import { aktif, hitungNota, lunas, namaTahapKini, type Pesanan } from '@/lib/pesanan';
 import { meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
+import Pengantar from '@/components/Pengantar';
+import { Kosong } from '@/components/tanda';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
 import { tanggalPendek } from '@/lib/waktu';
 
@@ -22,7 +24,7 @@ export function generateMetadata() {
 type Saring = 'semua' | 'berjalan' | 'selesai';
 
 export default function Riwayat() {
-  const { siap, kini, pesanan, aturUlang } = useBusa();
+  const { siap, kini, pesanan, aturUlang, setPengantar } = useBusa();
   const [saring, setSaring] = useState<Saring>('semua');
   const [yakin, setYakin] = useState(false);
 
@@ -53,9 +55,11 @@ export default function Riwayat() {
           <Kerangka tinggi={96} />
         </>
       ) : daftar.length === 0 ? (
-        <Kartu>
-          <Teks>Belum ada order di sini.</Teks>
-        </Kartu>
+        <Kosong
+          judul={saring === 'berjalan' ? 'Tidak ada cucian berjalan' : 'Belum ada order selesai'}
+          isi={saring === 'berjalan' ? 'Semua cucianmu sudah pulang. Saatnya isi tas lagi?' : 'Order yang sudah diantar atau diambil akan muncul di sini.'}
+          aksi={{ label: 'Jadwalkan jemput', href: '/pesan' }}
+        />
       ) : (
         <View style={{ gap: 10 }}>
           {daftar.map((p) => (
@@ -83,9 +87,13 @@ export default function Riwayat() {
             <Tombol label="Batal" gaya="tipis" kecil style={{ flex: 1 }} onPress={() => setYakin(false)} />
           </View>
         ) : (
-          <Tombol label="Atur ulang data contoh" ikon="ulang" gaya="tipis" kecil onPress={() => setYakin(true)} />
+          <>
+            <Tombol label="Atur ulang data contoh" ikon="ulang" gaya="tipis" kecil onPress={() => setYakin(true)} />
+            <Tombol label="Lihat pengantar lagi" ikon="info" gaya="tipis" kecil onPress={() => setPengantar(false)} />
+          </>
         )}
       </Kartu>
+      <Pengantar />
     </Layar>
   );
 }

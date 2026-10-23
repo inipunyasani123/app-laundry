@@ -48,6 +48,21 @@ export const IKON = {
   info: [C(12, 12, 8.5), P('M12 11v5'), C(12, 8, 0.9, 'cur')],
   bintang: [P('M12 3.8l2.4 5 5.5.7-4 3.8 1 5.4L12 16l-4.9 2.7 1-5.4-4-3.8 5.5-.7z')],
   pisah: [C(8.5, 12, 4.8), C(15.5, 12, 4.8)],
+  // Item satuan
+  bedcover: [R(3, 6, 18, 12, 2), P('M3 12h18M9 6v12M15 6v12')],
+  bedcoverKecil: [R(5, 8, 14, 9, 2), P('M5 12.5h14M12 8v9')],
+  selimut: [P('M4 7.5h16v4.5H4z'), P('M4 12h16v5.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z'), P('M7.5 15.2h9')],
+  sprei: [P('M3 17v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5'), P('M3 15h18M3 17v2.2M21 17v2.2'), R(5.5, 6.2, 5, 3.8, 1.3)],
+  jas: [P('M8.3 4 12 9l3.7-5'), P('M8.3 4 4.5 6.2V20h15V6.2L15.7 4'), P('M12 9v11'), C(13.9, 14, 0.6, 'cur')],
+  kebaya: [P('M9.2 3.8h5.6l-1.1 4.4L18 20H6l4.3-11.8z'), P('M10.3 8.2h3.4'), P('M8.6 14.5h6.8')],
+  gamis: [P('M9 3.8h6l3 3-2 2.2V20H8V9L6 6.8z'), P('M12 3.8V9')],
+  sepatu: [P('M3 15.5V11l4-1 3.2 3 6 1.4A3 3 0 0 1 19 17.3V18H3z'), P('M3 16.4h16'), P('M10.4 13.4l1.2-1.2M12.6 13.9l1.1-1.2')],
+  tas: [P('M7 9a5 5 0 0 1 10 0v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z'), P('M10 5V3.6h4V5'), R(9.2, 12.5, 5.6, 4, 1)],
+  boneka: [C(12, 14, 5.5), C(7.6, 7.6, 2.3), C(16.4, 7.6, 2.3), C(12, 15.6, 1.6), C(10.1, 12.6, 0.6, 'cur'), C(13.9, 12.6, 0.6, 'cur')],
+  kaos: [P('M8.5 4 4 6.5l1.6 3.8 2-1V20h8.8V9.3l2 1 1.6-3.8L15.5 4c-.6 1.3-1.9 2.2-3.5 2.2S9.1 5.3 8.5 4z')],
+  timbang: [R(4, 13, 16, 6, 2), P('M8 13V9.5a4 4 0 0 1 8 0V13'), P('M12 9.5v1.5')],
+  komplain: [P('M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5z'), P('M12 8.5v3.5'), C(12, 14.4, 0.8, 'cur')],
+  wa: [P('M4.5 19.5l1.1-3.6A7.8 7.8 0 1 1 8.8 19z'), P('M9.2 8.8c.3 2.6 2.4 4.9 5 5.6l1.3-1.3-1.8-1-.9.8c-.9-.4-1.9-1.4-2.3-2.3l.8-.9-1-1.8z')],
 } satisfies Record<string, Bentuk[]>;
 
 export type NamaIkon = keyof typeof IKON;
@@ -73,4 +88,48 @@ export const LOGO: Bentuk[] = [
   { t: 'circle', cx: 47, cy: 44, r: 5.5, isi: '#FFD24A' },
   { t: 'path', d: 'M17.5 33a9 9 0 0 1 7-6.5', garis: '#CDBEF6', tebal: 3.5 },
   { t: 'circle', cx: 26, cy: 37, r: 4.5, isi: '#5B2FD0' },
+];
+
+
+/** Tas cucian ungu bertiket gantung + gelembung (viewBox 120×96), untuk ubin & keadaan kosong. */
+export const TAS_CUCIAN: Bentuk[] = [
+  { t: 'circle', cx: 92, cy: 22, r: 10, garis: '#B9AEDA', tebal: 2.5 },
+  { t: 'circle', cx: 104, cy: 44, r: 5, garis: '#B9AEDA', tebal: 2 },
+  { t: 'circle', cx: 18, cy: 30, r: 6, garis: '#B9AEDA', tebal: 2 },
+  { t: 'path', d: 'M30 40c0-8 6-12 12-12h28c6 0 12 4 12 12l6 40c1 6-3 10-9 10H33c-6 0-10-4-9-10z', isi: '#5B2FD0' },
+  { t: 'path', d: 'M36 34c6 5 34 5 40 0', garis: '#3A1C8F', tebal: 3 },
+  { t: 'path', d: 'M44 30c0-9 24-9 24 0', garis: '#3A1C8F', tebal: 3 },
+  { t: 'circle', cx: 46, cy: 58, r: 9, isi: '#FFFFFF' },
+  { t: 'circle', cx: 60, cy: 66, r: 6, isi: '#FFFFFF' },
+  { t: 'circle', cx: 50, cy: 74, r: 4, isi: '#CDBEF6' },
+  { t: 'path', d: 'M76 40l10 10', garis: '#21163F', tebal: 1.6 },
+  { t: 'path', d: 'M84 47h16a3 3 0 0 1 3 3v18a3 3 0 0 1-3 3H84a3 3 0 0 1-3-3V50a3 3 0 0 1 3-3z', isi: '#FFD24A' },
+  { t: 'circle', cx: 88, cy: 52, r: 2, isi: '#F4F0FB' },
+  { t: 'path', d: 'M86 60h12M86 65h8', garis: '#21163F', tebal: 1.8 },
+];
+
+/** Jendela mesin (viewBox 120×120): cincin dasar; busur progres & simbol digambar terpisah. */
+export function busurProgres(persen: number, r = 52, cx = 60, cy = 60): string {
+  const p = Math.max(0.001, Math.min(0.999, persen));
+  const sudut = p * Math.PI * 2 - Math.PI / 2;
+  const x = cx + r * Math.cos(sudut);
+  const y = cy + r * Math.sin(sudut);
+  return `M${cx} ${cy - r} A${r} ${r} 0 ${p > 0.5 ? 1 : 0} 1 ${x.toFixed(2)} ${y.toFixed(2)}`;
+}
+
+/** Timbangan cucian dengan tas di atasnya (viewBox 120×108), untuk kepala halaman Harga. */
+export const TIMBANGAN_BESAR: Bentuk[] = [
+  { t: 'circle', cx: 100, cy: 20, r: 7, garis: '#E0B83A', tebal: 2 },
+  { t: 'circle', cx: 14, cy: 40, r: 5, garis: '#E0B83A', tebal: 2 },
+  { t: 'path', d: 'M22 80h76l6 18H16z', isi: '#21163F' },
+  { t: 'rect', x: 40, y: 84, w: 40, h: 9, rx: 3, isi: '#FFD24A' },
+  { t: 'path', d: 'M50 88.5h6M60 88.5h2', garis: '#21163F', tebal: 2 },
+  { t: 'path', d: 'M28 80V72h64v8', isi: '#3A1C8F' },
+  { t: 'path', d: 'M38 44c0-6 4-9 9-9h26c5 0 9 3 9 9l4 28H34z', isi: '#5B2FD0' },
+  { t: 'path', d: 'M50 35c0-8 20-8 20 0', garis: '#3A1C8F', tebal: 3 },
+  { t: 'circle', cx: 52, cy: 54, r: 7, isi: '#FFFFFF' },
+  { t: 'circle', cx: 64, cy: 61, r: 4.5, isi: '#FFFFFF' },
+  { t: 'path', d: 'M82 44l8 8', garis: '#21163F', tebal: 1.6 },
+  { t: 'path', d: 'M88 50h12a2.5 2.5 0 0 1 2.5 2.5v13A2.5 2.5 0 0 1 100 68H88a2.5 2.5 0 0 1-2.5-2.5v-13A2.5 2.5 0 0 1 88 50z', isi: '#FFFFFF', garis: '#21163F', tebal: 1.4 },
+  { t: 'path', d: 'M89.5 58h9M89.5 62h6', garis: '#21163F', tebal: 1.6 },
 ];

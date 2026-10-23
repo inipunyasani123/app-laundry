@@ -1,9 +1,11 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Foto from '@/components/Foto';
+import Gambar from '@/components/Gambar';
+import { TAS_CUCIAN } from '@/components/ikon-data';
+import Pengantar from '@/components/Pengantar';
 import { KepalaMerek, Layar } from '@/components/kerangka';
 import Ikon from '@/components/Ikon';
-import { Busa, TiketCucian, TiketMini } from '@/components/tanda';
+import { Busa, Kosong, TiketCucian, TiketMini } from '@/components/tanda';
 import { Judul, Kartu, Kerangka, Teks } from '@/components/ui';
 import { LAYANAN, MEREK, SLOT_JEMPUT, ribuan, rupiah } from '@/lib/katalog';
 import { jamSlot } from '@/lib/pesanan';
@@ -55,9 +57,7 @@ export default function Beranda() {
             <Kerangka tinggi={66} />
           </>
         ) : berjalan.length === 0 ? (
-          <Kartu>
-            <Teks>Belum ada cucian berjalan. Jadwalkan jemput dan kurir kami datang ke rumahmu.</Teks>
-          </Kartu>
+          <Kosong judul="Tas cucianmu masih kosong" isi="Belum ada cucian berjalan. Jadwalkan jemput, kurir kami datang ke rumahmu." aksi={{ label: 'Jadwalkan jemput', href: '/pesan' }} />
         ) : (
           <>
             <TiketCucian p={berjalan[0]} kini={kini} besar />
@@ -116,11 +116,13 @@ export default function Beranda() {
 
       <Link href="/harga" asChild>
         <Pressable style={st.ubinFoto}>
-          <Foto nama="jepit" />
           <View style={st.fotoTeks}>
-            <Text style={st.fotoKecil}>Daftar harga</Text>
+            <Text style={st.fotoKecil}>DAFTAR HARGA</Text>
             <Text style={st.fotoJudul}>Kiloan mulai {rupiah(LAYANAN.lipat.hargaKg)}/kg</Text>
-            <Text style={st.fotoKecil}>Satuan, ekspres 6 jam, dan perawatan noda</Text>
+            <Text style={st.fotoIsi}>Satuan, ekspres 6 jam, dan perawatan noda</Text>
+          </View>
+          <View aria-hidden style={st.fotoGambar}>
+            <Gambar bentuk={TAS_CUCIAN} kotak={120} lebar={130} tinggi={104} />
           </View>
         </Pressable>
       </Link>
@@ -156,6 +158,7 @@ export default function Beranda() {
           {MEREK.outlet} · buka {MEREK.jamBuka}. Usaha dan datanya rekaan untuk demo; waktu mengikuti jam WIB saat ini.
         </Teks>
       </View>
+      <Pengantar />
     </Layar>
   );
 }
@@ -174,19 +177,12 @@ const st = StyleSheet.create({
   ubinIsi: { fontSize: 13, lineHeight: 18, color: warna.tinta },
   ubinLabel: { fontSize: 12, fontWeight: '800', letterSpacing: 1.5, color: warna.tinta },
   angkaPoin: { fontFamily: hurufJudul, fontSize: 40, lineHeight: 46, color: warna.unguTua, marginTop: 'auto' },
-  ubinFoto: { borderRadius: sudut.besar, overflow: 'hidden', height: 170, backgroundColor: warna.tinta },
-  fotoTeks: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 14,
-    paddingTop: 30,
-    backgroundColor: 'rgba(33,22,63,0.78)',
-    gap: 2,
-  },
-  fotoKecil: { color: '#F1ECFF', fontSize: 13 },
-  fotoJudul: { fontFamily: hurufJudul, color: warna.putih, fontSize: 22, lineHeight: 27 },
+  ubinFoto: { borderRadius: sudut.besar, overflow: 'hidden', minHeight: 132, backgroundColor: warna.unguMuda, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: warna.lavender },
+  fotoTeks: { flex: 1, padding: 14, gap: 3 },
+  fotoGambar: { paddingRight: 8 },
+  fotoKecil: { color: warna.unguTua, fontSize: 12, fontWeight: '800', letterSpacing: 1.3 },
+  fotoJudul: { fontFamily: hurufJudul, color: warna.tinta, fontSize: 21, lineHeight: 25 },
+  fotoIsi: { color: warna.redup, fontSize: 13, lineHeight: 18 },
   tautan: { color: warna.unguTua, fontWeight: '700', fontSize: 14, padding: 6, textDecorationLine: 'underline' },
   notif: { flexDirection: 'row', gap: 10, paddingVertical: 10, borderTopWidth: 1, borderColor: warna.unguMuda, alignItems: 'flex-start' },
   titik: { width: 10, height: 10, borderRadius: 5, backgroundColor: warna.ungu, marginTop: 6 },

@@ -154,7 +154,7 @@ export const s = StyleSheet.create({
   ditekan: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   labelTombol: { fontSize: 16, fontWeight: '700' },
   chip: {
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: 14,
     borderRadius: sudut.bulat,
     borderWidth: 1.5,

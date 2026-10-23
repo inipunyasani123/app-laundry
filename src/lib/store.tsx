@@ -23,10 +23,28 @@ interface Simpanan {
   ditukar: { kode: string; poin: number; waktu: number }[];
   voucherDipakai: string[];
   notifAktif: boolean;
+  komplain?: Record<string, Komplain>;
+  nilai?: Record<string, Penilaian>;
+  pengantar?: boolean;
+}
+
+export interface Komplain {
+  kode: string;
+  masalah: string[];
+  item: string[];
+  catatan?: string;
+  waktu: number;
+}
+
+export interface Penilaian {
+  skor: number;
+  pilihan: string[];
+  waktu: number;
 }
 
 const kosong = (kini: number): Simpanan => ({
   versi: 1, jangkar: kini, baru: [], bayar: {}, geser: {}, diambil: {}, dibaca: [], ditukar: [], voucherDipakai: [], notifAktif: true,
+  komplain: {}, nilai: {}, pengantar: false,
 });
 
 export interface InputPesanan {
@@ -56,6 +74,7 @@ export interface VoucherTersedia {
   judul: string;
   ket: string;
   sampai: number;
+  syarat?: string;
 }
 
 interface Nilai {
@@ -68,9 +87,15 @@ interface Nilai {
   notifikasi: Notifikasi[];
   belumDibaca: number;
   dibaca: Set<string>;
-  poin: { saldo: number; tingkat: string; berikut?: string; kurang: number; persen: number; cap: number; capBerjalan: number };
+  poin: { saldo: number; total: number; tingkat: string; berikut?: string; kurang: number; persen: number; cap: number; capBerjalan: number };
   voucher: VoucherTersedia[];
   notifAktif: boolean;
+  komplain: Record<string, Komplain>;
+  nilai: Record<string, Penilaian>;
+  pengantar: boolean;
+  ajukanKomplain: (no: string, k: Omit<Komplain, 'kode' | 'waktu'>) => string;
+  beriNilai: (no: string, skor: number, pilihan: string[]) => void;
+  setPengantar: (dilihat: boolean) => void;
   toast: Toast | null;
   tutupToast: () => void;
   buatPesanan: (i: InputPesanan) => string;
@@ -126,7 +151,7 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
             if (t - lama.jangkar > UMUR_CONTOH) {
               const contoh = new Set(pesananContoh(lama.jangkar).map((p) => p.no));
               const saring = <T,>(r: Record<string, T>) => Object.fromEntries(Object.entries(r).filter(([k]) => !contoh.has(k)));
-              isi = { ...lama, jangkar: t, bayar: saring(lama.bayar), geser: saring(lama.geser), diambil: saring(lama.diambil), dibaca: lama.dibaca.filter((d) => !contoh.has(d.split(':')[0])) };
+              isi = { ...lama, jangkar: t, bayar: saring(lama.bayar), geser: saring(lama.geser), diambil: saring(lama.diambil), dibaca: lama.dibaca.filter((d) => !contoh.has(d.split(':')[0])), komplain: saring(lama.komplain ?? {}), nilai: saring(lama.nilai ?? {}) };
             }
           }
         }
@@ -157,7 +182,14 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
 
   const pesanan = useMemo(() => (s ? terapkan(s) : []), [s]);
 
-  const notifikasi = useMemo(() => (s && kini ? notifikasiDari(pesanan, kini, s.jangkar) : []), [pesanan, kini, s]);
+  const notifikasi = useMemo(() => {
+    if (!s || !kini) return [];
+    const dasar = notifikasiDari(pesanan, kini, s.jangkar);
+    const dariKomplain: Notifikasi[] = Object.entries(s.komplain ?? {}).flatMap(([no, k]) => [
+      { id: `${k.kode}:masuk`, waktu: k.waktu, jenis: 'komplain' as const, no, judul: `Komplain ${k.kode} diterima`, isi: `Untuk ${no}: ${k.masalah.join(', ').toLowerCase()}. Tim outlet menghubungimu lewat WhatsApp (simulasi).` },
+    ]);
+    return [...dasar, ...dariKomplain].filter((n) => n.waktu <= kini).sort((a, b) => b.waktu - a.waktu);
+  }, [pesanan, kini, s]);
 
   // Notifikasi simulasi: tampilkan peristiwa yang baru saja lewat.
   useEffect(() => {
@@ -197,7 +229,7 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
     const jangkar = s?.jangkar ?? kini;
     const dipakai = new Set(s?.voucherDipakai ?? []);
     const voucher: VoucherTersedia[] = [
-      ...VOUCHER.map((v) => ({ kode: v.kode, judul: v.judul, ket: v.ket, sampai: bulatkan(jangkar + v.hariBerlaku * HARI_MS, JAM) })),
+      ...VOUCHER.map((v) => ({ kode: v.kode, judul: v.judul, ket: v.ket, syarat: v.syarat, sampai: bulatkan(jangkar + v.hariBerlaku * HARI_MS, JAM) })),
       ...(s?.ditukar ?? []).map((d) => {
         const t = TUKAR_POIN.find((x) => x.kode === d.kode.split('-')[0]);
         return { kode: d.kode, judul: t?.judul ?? 'Voucher poin', ket: `Hasil tukar ${d.poin} poin, potong langsung di nota`, sampai: d.waktu + 30 * HARI_MS };
@@ -214,9 +246,23 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
       notifikasi,
       belumDibaca: notifikasi.filter((n) => !dibaca.has(n.id)).length,
       dibaca,
-      poin: { saldo, tingkat: TINGKAT[ti].nama, berikut: berikut?.nama, kurang, persen, cap, capBerjalan },
+      poin: { saldo, total, tingkat: TINGKAT[ti].nama, berikut: berikut?.nama, kurang, persen, cap, capBerjalan },
       voucher,
       notifAktif: s?.notifAktif ?? true,
+      komplain: s?.komplain ?? {},
+      nilai: s?.nilai ?? {},
+      pengantar: s?.pengantar ?? true,
+      ajukanKomplain: (no, k) => {
+        const t = Date.now();
+        const kode = `KP-${(Object.keys(s?.komplain ?? {}).length + 301).toString()}`;
+        ubah((x) => ({ ...x, komplain: { ...(x.komplain ?? {}), [no]: { ...k, kode, waktu: t } } }));
+        setKini(t);
+        terakhir.current = t;
+        if (s?.notifAktif !== false) setToast({ id: `${kode}:masuk`, judul: `Komplain ${kode} diterima`, isi: 'Tim outlet menghubungimu lewat WhatsApp (simulasi).', no });
+        return kode;
+      },
+      beriNilai: (no, skor, pilihan) => ubah((x) => ({ ...x, nilai: { ...(x.nilai ?? {}), [no]: { skor, pilihan, waktu: Date.now() } } })),
+      setPengantar: (dilihat) => ubah((x) => ({ ...x, pengantar: dilihat })),
       toast,
       tutupToast: () => setToast(null),
       buatPesanan: (i) => {
@@ -254,6 +300,8 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
           bayar: { ...x.bayar, [no]: { metode, waktu: t, voucher, diskon } },
           voucherDipakai: voucher ? [...x.voucherDipakai, voucher] : x.voucherDipakai,
         }));
+        // Layar hasil bayar sudah memberi tahu; jangan dobel dengan toast.
+        terakhir.current = t;
         setKini(t);
       },
       majukan: (no) => {
@@ -291,7 +339,7 @@ export function PenyediaBusa({ children }: { children: ReactNode }) {
         terakhir.current = t;
         setToast(null);
         setKini(t);
-        setS(kosong(t));
+        setS((x) => ({ ...kosong(t), pengantar: x?.pengantar ?? false }));
       },
     };
   }, [s, pesanan, kini, notifikasi, toast, ubah]);

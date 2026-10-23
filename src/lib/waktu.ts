@@ -152,3 +152,29 @@ export function kerja(ms: number, menit: number) {
   }
   return t;
 }
+
+/** Jumlah menit kerja (jam buka) di antara a dan b (a ≤ b). */
+export function menitKerjaAntara(a: number, b: number) {
+  if (b <= a) return 0;
+  let t = a;
+  let total = 0;
+  for (let i = 0; i < 60 && t < b; i++) {
+    const buka = padaJam(t, BUKA);
+    const tutup = padaJam(t, TUTUP);
+    const mulai = Math.max(t, buka);
+    const akhir = Math.min(b, tutup);
+    if (akhir > mulai) total += akhir - mulai;
+    t = padaJam(t + HARI_MS, 0);
+  }
+  return total / MENIT;
+}
+
+export function outletBuka(ms: number) {
+  const j = bagianWIB(ms).jam;
+  return j >= BUKA && j < TUTUP;
+}
+
+const HARI_SINGKAT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+export function hariSingkat(ms: number) {
+  return HARI_SINGKAT[bagianWIB(ms).hari];
+}

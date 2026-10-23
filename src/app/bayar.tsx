@@ -1,12 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AccessibilityInfo, ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Gambar from '@/components/Gambar';
 import Ikon from '@/components/Ikon';
 import type { Bentuk, NamaIkon } from '@/components/ikon-data';
 import { KepalaDalam, Layar } from '@/components/kerangka';
 import { Judul, Kartu, Kerangka, Teks, Tombol } from '@/components/ui';
-import { rupiah } from '@/lib/katalog';
+import { LAYANAN, kg, rupiah } from '@/lib/katalog';
 import { METODE, hitungNota, nilaiVoucher, type Metode } from '@/lib/pesanan';
 import { meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
@@ -85,21 +85,34 @@ export default function Bayar() {
     return (
       <Layar kepala={<KepalaDalam judul="Bayar" sub={p.no} />}>
         <View style={st.sukses}>
-          <View style={st.suksesIkon}>
-            <Ikon nama="cek" ukuran={40} warna={warna.putih} tebal={2.6} />
-          </View>
+          <CapLunas teks={b?.metode === 'tunai' ? 'COD' : 'LUNAS'} />
           <Judul level={2} ukuran={26} style={{ color: warna.putih, textAlign: 'center' }}>
             {b?.metode === 'tunai' ? 'Siap bayar tunai' : 'Pembayaran berhasil'}
           </Judul>
-          <Text style={st.suksesTeks}>
+          <Text style={st.suksesTeks} aria-live="polite">
             {b?.metode === 'tunai'
               ? `Siapkan ${rupiah(dibayar)} saat kurir mengantar ${p.no}.`
               : `${p.no} lunas lewat ${METODE[b?.metode ?? metode].nama}. Ini simulasi: tidak ada uang yang berpindah.`}
           </Text>
-          {b && b.metode !== 'tunai' ? <Text style={st.suksesKecil}>{tglBulan(b.waktu)} · {jam(b.waktu)} WIB · +{Math.floor(dibayar / 1000)} poin</Text> : null}
+        </View>
+        <View style={st.bukti}>
+          <BarisBukti label="Nota" isi={p.no} />
+          <BarisBukti label="Layanan" isi={`${LAYANAN[p.layanan].singkat}${hitungNota(p, kini).berat > 0 ? ` · ${kg(hitungNota(p, kini).berat)}` : ''}`} />
+          <BarisBukti label="Metode" isi={`${METODE[b?.metode ?? metode].nama} (simulasi)`} />
+          {b && b.metode !== 'tunai' ? <BarisBukti label="Waktu" isi={`${tglBulan(b.waktu)} · ${jam(b.waktu)} WIB`} /> : null}
+          {b?.diskon ? <BarisBukti label="Hemat" isi={rupiah(b.diskon)} /> : null}
+          <View style={st.buktiGaris} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Text style={st.buktiTotalLabel}>Total</Text>
+            <Text style={st.buktiTotal}>{rupiah(dibayar)}</Text>
+          </View>
+          <Text style={st.buktiPoin}>{b?.metode === 'tunai' ? `+${Math.floor(dibayar / 1000)} poin setelah dibayar ke kurir` : `+${Math.floor(dibayar / 1000)} poin masuk`}</Text>
         </View>
         <Tombol label="Lihat nota" ikon="nota" href={{ pathname: '/nota', params: { no: p.no } }} />
-        <Tombol label="Kembali ke beranda" gaya="kedua" href="/" />
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Tombol label="Status cucian" ikon="bak" gaya="kedua" href={{ pathname: '/status', params: { no: p.no } }} style={{ flex: 1 }} />
+          <Tombol label="Poin" ikon="busa" gaya="kedua" href="/poin" style={{ flex: 1 }} />
+        </View>
       </Layar>
     );
   }
@@ -197,7 +210,7 @@ export default function Bayar() {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={st.opsiJudul}>{v.judul}</Text>
-                  <Text style={st.opsiKet}>{bisa ? v.ket : 'Tidak berlaku untuk nota ini'}</Text>
+                  <Text style={st.opsiKet}>{bisa ? v.ket : v.syarat ?? 'Tidak berlaku untuk nota ini'}</Text>
                 </View>
                 {bisa ? <Text style={st.hemat}>{rupiah(-v.nilai)}</Text> : null}
               </Pressable>
@@ -227,7 +240,55 @@ const st = StyleSheet.create({
   bawahTotal: { fontFamily: hurufJudul, fontSize: 22, lineHeight: 26, color: warna.tinta },
   proses: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: warna.unguTua, borderRadius: 999, minHeight: 50, paddingHorizontal: 20 },
   sukses: { backgroundColor: warna.hijau, borderRadius: sudut.besar, padding: 22, alignItems: 'center', gap: 10 },
+  cap: { borderWidth: 3, borderColor: warna.putih, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 4, marginBottom: 4 },
+  capTeks: { fontFamily: hurufAngka, fontSize: 24, fontWeight: '800', letterSpacing: 4, color: warna.putih },
+  bukti: { backgroundColor: warna.kartu, borderRadius: sudut.besar, borderWidth: 1, borderColor: warna.garis, padding: 16, gap: 6 },
+  buktiGaris: { borderTopWidth: 1.5, borderStyle: 'dashed', borderColor: '#CFC6E6', marginVertical: 4 },
+  buktiTotalLabel: { fontFamily: hurufJudul, fontSize: 18, color: warna.tinta },
+  buktiTotal: { fontFamily: hurufJudul, fontSize: 24, color: warna.unguTua, fontVariant: ['tabular-nums'] },
+  buktiPoin: { fontSize: 13, fontWeight: '700', color: warna.hijau },
   suksesIkon: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
   suksesTeks: { color: warna.putih, fontSize: 15, lineHeight: 22, textAlign: 'center' },
   suksesKecil: { color: '#D9F2E7', fontSize: 13, fontFamily: hurufAngka },
 });
+
+function BarisBukti({ label, isi }: { label: string; isi: string }) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+      <Text style={{ fontSize: 13, color: warna.redup }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: warna.tinta, fontVariant: ['tabular-nums'], flexShrink: 1, textAlign: 'right' }}>{isi}</Text>
+    </View>
+  );
+}
+
+/** Stempel yang "dicap": membesar lalu menetap miring. Instan bila gerak dikurangi. */
+function CapLunas({ teks }: { teks: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let hidup = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((kurang) => {
+        if (!hidup) return;
+        if (kurang) v.setValue(1);
+        else Animated.spring(v, { toValue: 1, friction: 5, tension: 120, useNativeDriver: Platform.OS !== 'web' }).start();
+      })
+      .catch(() => v.setValue(1));
+    return () => {
+      hidup = false;
+    };
+  }, []);
+  return (
+    <Animated.View
+      aria-hidden
+      style={[
+        st.cap,
+        {
+          opacity: v.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0, 1, 1] }),
+          transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1.8, 1] }) }, { rotate: '-8deg' }],
+        },
+      ]}
+    >
+      <Text style={st.capTeks}>{teks}</Text>
+    </Animated.View>
+  );
+}

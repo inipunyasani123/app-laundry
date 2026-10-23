@@ -13,6 +13,8 @@ export default function TataLetakAkar() {
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: warna.latar }, animation: 'slide_from_right' }} />
         <TabBawah />
         <Toast />
+        {/* Wadah lembar bawah (web: portal di dalam bingkai ponsel). */}
+        <View nativeID="lapis-lembar" pointerEvents="box-none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 80 }} />
       </View>
     </PenyediaBusa>
   );

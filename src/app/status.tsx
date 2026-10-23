@@ -1,13 +1,14 @@
 import { Link, router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Gambar from '@/components/Gambar';
 import Ikon from '@/components/Ikon';
-import { KURIR_GAMBAR } from '@/components/ikon-data';
+import { KURIR_GAMBAR, type NamaIkon } from '@/components/ikon-data';
 import { KepalaDalam, Layar } from '@/components/kerangka';
-import { LabelTahap } from '@/components/tanda';
-import { Chip, Jahitan, Judul, Kartu, Kerangka, Lencana, Teks, Tombol } from '@/components/ui';
+import { JendelaMesin, LabelTahap } from '@/components/tanda';
+import { JalurKomplain, PenilaianKu } from '@/components/ulasan';
+import { Jahitan, Judul, Kartu, Kerangka, Lencana, Teks, Tombol } from '@/components/ui';
 import { KURIR, LAYANAN, MEREK, TAHAP, kg, rupiah } from '@/lib/katalog';
-import { hitungNota, indeksTahap, jamSlot, lunas, namaPewangi, namaTahapKini, perkiraanSelesai } from '@/lib/pesanan';
+import { hitungNota, indeksTahap, jamSlot, kemajuanTahap, lunas, namaPewangi, namaTahapKini, perkiraanSelesai, slotAntar, teksSisa } from '@/lib/pesanan';
 import { meta } from '@/lib/seo';
 import { useBusa } from '@/lib/store';
 import { hurufAngka, hurufJudul, sudut, warna } from '@/lib/tema';
@@ -59,59 +60,133 @@ export default function Status() {
   const nota = hitungNota(p, kini);
   const selesaiSemua = i === 6;
   const lainnya = berjalan.filter((x) => x.no !== p.no);
+  const pilihan = berjalan.some((x) => x.no === p.no) ? berjalan : [p, ...berjalan];
+  const maju = kemajuanTahap(p, kini);
+  const simbolAktif: NamaIkon = i === -1 ? 'motor' : i === 6 ? 'lipatan' : i === 5 && p.antar ? 'motor' : TAHAP[i].simbol;
 
   return (
     <Layar kepala={<KepalaDalam judul="Status cucian" sub={`${p.no} · ${LAYANAN[p.layanan].singkat}`} />}>
-      {berjalan.length > 1 ? (
-        <View role="radiogroup" aria-label="Pilih tiket" style={st.pilihTiket}>
-          {berjalan.map((x) => (
-            <Chip key={x.no} label={x.no} aktif={x.no === p.no} onPress={() => router.setParams({ no: x.no })} />
-          ))}
-        </View>
+      {pilihan.length > 1 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.pilihTiket} style={{ marginHorizontal: -16, flexGrow: 0 }}>
+          <View role="radiogroup" aria-label="Pilih tiket" style={{ flexDirection: 'row', gap: 8 }}>
+            {pilihan.map((x) => {
+              const aktifIni = x.no === p.no;
+              const ix = indeksTahap(x, kini);
+              const simbolX = ix < 0 || ix === 6 ? (ix === 6 ? 'cek' : 'motor') : TAHAP[ix].simbol;
+              return (
+                <Pressable
+                  key={x.no}
+                  role="radio"
+                  aria-checked={aktifIni}
+                  aria-label={`${x.no}, ${namaTahapKini(x, kini)}`}
+                  onPress={() => router.setParams({ no: x.no })}
+                  style={[st.chipTiket, aktifIni && st.chipTiketAktif]}
+                >
+                  <Ikon nama={simbolX} ukuran={16} warna={aktifIni ? warna.putih : warna.unguTua} />
+                  <Text style={[st.chipTiketTeks, aktifIni && { color: warna.putih }]}>{x.no}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
       ) : null}
 
-      {/* Label satin: tahap kini & perkiraan selesai */}
+      {/* Kepala hidup: jendela mesin + kemajuan tahap */}
       <View style={st.satin}>
         <View style={st.satinDalam}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={st.satinNo}>{p.no}</Text>
             {lunas(p, kini) ? <Lencana label="LUNAS" jenis="hijau" /> : p.bayar?.metode === 'tunai' ? <Lencana label="BAYAR TUNAI" jenis="kuning" /> : <Lencana label="BELUM BAYAR" jenis="koral" />}
           </View>
-          <Judul level={2} ukuran={30} style={{ color: warna.unguTua }}>
-            {namaTahapKini(p, kini)}
-          </Judul>
-          <LabelTahap p={p} kini={kini} />
-          <Jahitan warnaGaris={warna.lavender} style={{ marginVertical: 4 }} />
-          {i === -1 && p.jemput ? (
-            <View>
-              <Text style={st.etaLabel}>KURIR MENJEMPUT</Text>
-              <Text style={st.etaBesar}>
-                {hariRelatif(p.jemput, kini)}, {jamSlot(p.jemput)}
-              </Text>
-              <Teks redup kecil>
-                Cucian selesai sekitar {hariKalimat(eta, kini)} {jam(eta)} WIB
-              </Teks>
+          <View style={st.kepalaHidup}>
+            <JendelaMesin simbol={simbolAktif} persen={maju.persen} />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={st.tahapLabel}>{i === -1 ? 'BELUM MASUK OUTLET' : i === 6 ? 'SELESAI' : `TAHAP ${i + 1} DARI 6`}</Text>
+              <Judul level={2} ukuran={25} style={{ color: warna.unguTua }}>
+                {namaTahapKini(p, kini)}
+              </Judul>
+              {i >= 0 && i < 5 ? (
+                <>
+                  <Text style={st.persen}>{Math.round(maju.persen * 100)}%</Text>
+                  <Text style={st.sisa}>{teksSisa(maju.sisaMenit)} lagi ke tahap berikut</Text>
+                </>
+              ) : i === 5 && p.antar && !selesaiSemua ? (
+                <Text style={st.sisa}>Kurir di jalan, tiba ±{jam(p.jadwal.tuntas)} WIB</Text>
+              ) : i === 5 ? (
+                <Text style={st.sisa}>Bisa diambil sekarang</Text>
+              ) : i === -1 && p.jemput ? (
+                <Text style={st.sisa}>Kurir datang {hariKalimat(p.jemput, kini)} {jamSlot(p.jemput)}</Text>
+              ) : (
+                <Text style={st.sisa}>{p.antar ? 'Diterima' : 'Diambil'} {hariKalimat(p.jadwal.tuntas, kini)} {jam(p.jadwal.tuntas)} WIB</Text>
+              )}
             </View>
-          ) : selesaiSemua ? (
-            <View>
-              <Text style={st.etaLabel}>{p.antar ? 'DITERIMA' : 'DIAMBIL'}</Text>
-              <Text style={st.etaBesar}>
-                {hariRelatif(p.jadwal.tuntas, kini)}, {jam(p.jadwal.tuntas)} WIB
+          </View>
+          {i >= 0 && i < 5 ? (
+            <View role="progressbar" aria-label={`Kemajuan ${namaTahapKini(p, kini).toLowerCase()}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(maju.persen * 100)} style={st.bilah}>
+              <View style={[st.bilahIsi, { width: `${Math.max(3, Math.round(maju.persen * 100))}%` }]} />
+            </View>
+          ) : null}
+          <LabelTahap p={p} kini={kini} ujung />
+          {maju.tutup && i >= 0 && i < 5 ? (
+            <View style={st.tutup}>
+              <Ikon nama="jam" ukuran={18} warna={warna.unguTua} />
+              <Text style={st.tutupTeks}>
+                Outlet tutup 21.00–07.00 WIB. {namaTahapKini(p, kini).replace('Sedang ', '')} dilanjutkan pukul 07.00, jadi hitungannya berhenti sebentar.
               </Text>
             </View>
-          ) : (
-            <View>
-              <Text style={st.etaLabel}>{p.antar ? 'PERKIRAAN TIBA DI RUMAH' : 'PERKIRAAN SIAP DIAMBIL'}</Text>
-              <Text style={st.etaBesar}>
-                {hariRelatif(eta, kini)}, {jam(eta)} WIB
+          ) : null}
+          <Jahitan warnaGaris={warna.lavender} style={{ marginVertical: 2 }} />
+          <View style={st.duaSel}>
+            <View style={st.sel}>
+              <Text style={st.selLabel}>{p.jemput ? 'JEMPUT' : 'MASUK'}</Text>
+              <Text style={st.selIsi}>
+                {p.jemput
+                  ? i >= 0
+                    ? `Selesai ${jam(p.jadwal.diterima - 40 * 60_000)}`
+                    : `${hariRelatif(p.jemput, kini)} ${jamSlot(p.jemput)}`
+                  : `Diantar sendiri ${jam(p.jadwal.diterima)}`}
               </Text>
-              <Teks redup kecil>
-                {sisaWaktu(eta, kini)} · janji layanan {LAYANAN[p.layanan].ket.toLowerCase()}
-              </Teks>
+              {p.jemput && i >= 0 ? <Ikon nama="cek" ukuran={16} warna={warna.hijau} tebal={2.4} /> : null}
             </View>
-          )}
+            <View style={st.sel}>
+              <Text style={st.selLabel}>{p.antar ? 'ANTAR' : 'AMBIL'}</Text>
+              <Text style={st.selIsi}>
+                {p.antar
+                  ? selesaiSemua
+                    ? `Sampai ${jam(p.jadwal.tuntas)}`
+                    : `${hariRelatif(slotAntar(p), kini)} ${jamSlot(slotAntar(p))}`
+                  : selesaiSemua
+                    ? `Diambil ${jam(p.jadwal.tuntas)}`
+                    : `Mulai ${hariKalimat(p.jadwal.siap, kini)} ${jam(p.jadwal.siap)}`}
+              </Text>
+              {selesaiSemua ? <Ikon nama="cek" ukuran={16} warna={warna.hijau} tebal={2.4} /> : null}
+            </View>
+          </View>
         </View>
       </View>
+
+      {!p.antar && i === 5 ? (
+        <View style={st.ambil}>
+          <Text style={st.ambilLabel}>TUNJUKKAN NOMOR INI KE KASIR</Text>
+          <Text style={st.ambilNo}>{p.no.slice(3)}</Text>
+          <Teks kecil style={{ textAlign: 'center' }}>{MEREK.outlet} · buka sampai 21.00 WIB</Teks>
+          <Tombol label="Sudah saya ambil" ikon="cek" gaya="utama" onPress={() => tandaiDiambil(p.no)} style={{ alignSelf: 'stretch' }} />
+        </View>
+      ) : null}
+
+      {selesaiSemua ? (
+        <View style={st.sampai}>
+          <Ikon nama="cek" ukuran={28} warna={warna.putih} tebal={2.6} />
+          <View style={{ flex: 1 }}>
+            <Text style={st.sampaiJudul}>{p.antar ? 'Cucian sampai' : 'Cucian sudah diambil'}</Text>
+            <Text style={st.sampaiTeks}>
+              {hariKalimat(p.jadwal.tuntas, kini)} {jam(p.jadwal.tuntas)} WIB. Cek dulu isinya, ya.
+            </Text>
+          </View>
+        </View>
+      ) : null}
+      <PenilaianKu p={p} />
+      <JalurKomplain p={p} />
 
       {/* Garis waktu */}
       <Kartu style={{ paddingVertical: 6 }}>
@@ -180,7 +255,6 @@ export default function Status() {
             <Tombol label={`Bayar`} ikon="dompet" href={{ pathname: '/bayar', params: { no: p.no } }} style={{ flex: 1 }} labelAria={`Bayar ${p.no}`} />
           ) : null}
         </View>
-        {!p.antar && i === 5 ? <Tombol label="Sudah saya ambil" ikon="cek" gaya="tipis" onPress={() => tandaiDiambil(p.no)} /> : null}
         {!selesaiSemua ? (
           <Tombol label="Majukan ke tahap berikutnya (simulasi)" ikon="maju" gaya="tipis" kecil onPress={() => majukan(p.no)} />
         ) : null}
@@ -233,7 +307,28 @@ function Baris({ ikon, label, isi }: { ikon: Parameters<typeof Ikon>[0]['nama'];
 }
 
 const st = StyleSheet.create({
-  pilihTiket: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  pilihTiket: { paddingHorizontal: 16 },
+  chipTiket: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1.5, borderColor: warna.lavender, backgroundColor: warna.kartu },
+  chipTiketAktif: { backgroundColor: warna.ungu, borderColor: warna.ungu },
+  chipTiketTeks: { fontSize: 14, fontWeight: '700', color: warna.unguTua, fontVariant: ['tabular-nums'] },
+  kepalaHidup: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  tahapLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 1.3, color: warna.redup },
+  persen: { fontFamily: hurufJudul, fontSize: 30, lineHeight: 34, color: warna.tinta, fontVariant: ['tabular-nums'] },
+  sisa: { fontSize: 13, lineHeight: 18, color: warna.redup },
+  bilah: { height: 8, borderRadius: 4, backgroundColor: warna.unguMuda, overflow: 'hidden' },
+  bilahIsi: { height: 8, borderRadius: 4, backgroundColor: warna.ungu },
+  tutup: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: warna.unguMuda, borderRadius: sudut.kecil, padding: 10 },
+  tutupTeks: { flex: 1, fontSize: 13, lineHeight: 18, color: warna.tinta },
+  duaSel: { flexDirection: 'row', gap: 8 },
+  sel: { flex: 1, backgroundColor: warna.latar, borderRadius: sudut.kecil, padding: 10, gap: 2 },
+  selLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 1.2, color: warna.redup },
+  selIsi: { fontSize: 14, fontWeight: '700', color: warna.tinta, fontVariant: ['tabular-nums'] },
+  ambil: { backgroundColor: warna.kuning, borderRadius: sudut.besar, padding: 16, alignItems: 'center', gap: 6 },
+  ambilLabel: { fontSize: 12, fontWeight: '800', letterSpacing: 1.4, color: warna.tinta },
+  ambilNo: { fontFamily: hurufJudul, fontSize: 56, lineHeight: 64, color: warna.tinta, fontVariant: ['tabular-nums'] },
+  sampai: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: warna.hijau, borderRadius: sudut.besar, padding: 16 },
+  sampaiJudul: { fontFamily: hurufJudul, fontSize: 21, color: warna.putih },
+  sampaiTeks: { fontSize: 14, color: '#E3F5EC' },
   satin: { backgroundColor: warna.kartu, borderRadius: sudut.besar, padding: 6, borderWidth: 1, borderColor: warna.garis },
   satinDalam: {
     borderRadius: sudut.besar - 4,

@@ -31,8 +31,21 @@ export default function Poin() {
         <Text style={st.saldoLabel}>SALDO POIN</Text>
         <Text style={st.saldoAngka}>{siap ? ribuan(poin.saldo) : '···'}</Text>
         <Text style={st.saldoTingkat}>{siap ? `Tingkat ${poin.tingkat}` : 'Tingkat member'}</Text>
-        <View style={st.bar} role="progressbar" aria-label="Menuju tingkat berikutnya" aria-valuemin={0} aria-valuemax={100} aria-valuenow={siap ? Math.round(poin.persen * 100) : 0}>
-          <View style={[st.barIsi, { width: `${siap ? Math.max(4, Math.round(poin.persen * 100)) : 4}%` }]} />
+        <View
+          role="progressbar"
+          aria-label="Poin terkumpul menuju Busa Wangi (2.500 poin)"
+          aria-valuemin={0}
+          aria-valuemax={2500}
+          aria-valuenow={siap ? Math.min(2500, poin.total) : 0}
+          style={st.bar}
+        >
+          <View style={[st.barIsi, { width: `${siap ? Math.max(3, Math.min(100, (poin.total / 2500) * 100)) : 3}%` }]} />
+          <View style={[st.penanda, { left: '40%' }]} />
+        </View>
+        <View style={st.skala} aria-hidden>
+          <Text style={st.skalaTeks}>0</Text>
+          <Text style={[st.skalaTeks, { position: 'absolute', left: '40%', marginLeft: -24 }]}>1.000 Lembut</Text>
+          <Text style={st.skalaTeks}>2.500 Wangi</Text>
         </View>
         <Text style={st.saldoKet}>
           {siap ? (poin.berikut ? `${ribuan(poin.kurang)} poin lagi ke ${poin.berikut}` : 'Tingkat tertinggi. Terima kasih!') : '1 poin tiap Rp1.000'}
@@ -73,6 +86,7 @@ export default function Poin() {
               <View style={{ flex: 1, padding: 12, gap: 2 }}>
                 <Text style={st.voucherJudul}>{v.judul}</Text>
                 <Text style={st.voucherKet}>{v.ket}</Text>
+                {v.syarat ? <Text style={st.voucherKet}>{v.syarat}</Text> : null}
                 <Text style={st.voucherKode}>
                   {v.kode.split('-')[0]} · s.d. {tglBulan(v.sampai)}
                 </Text>
@@ -114,15 +128,18 @@ export default function Poin() {
       <Kartu warnaLatar={warna.kuningMuda} style={{ gap: 8, borderColor: '#F3DE8A' }}>
         <Judul level={2} ukuran={18}>Tingkat member</Judul>
         {TINGKAT.map((t, i) => (
-          <View key={t.nama} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={[st.kecilTebal, siap && poin.tingkat === t.nama && { color: warna.unguTua }]}>
-              {t.nama}
-              {siap && poin.tingkat === t.nama ? ' (kamu)' : ''}
-            </Text>
-            <Text style={st.voucherKet}>{i === 0 ? 'Mulai' : `${ribuan(t.min)}+ poin`}</Text>
+          <View key={t.nama} style={{ gap: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={[st.kecilTebal, siap && poin.tingkat === t.nama && { color: warna.unguTua }]}>
+                {t.nama}
+                {siap && poin.tingkat === t.nama ? ' (kamu)' : ''}
+              </Text>
+              <Text style={st.voucherKet}>{i === 0 ? 'Mulai' : `${ribuan(t.min)}+ poin`}</Text>
+            </View>
+            <Text style={st.voucherKet}>{t.manfaat}</Text>
           </View>
         ))}
-        <Teks kecil redup>Busa Lembut: gratis ongkir 3–6 km. Busa Wangi: jemput prioritas dan pewangi premium.</Teks>
+        <Teks kecil redup>Tingkat dihitung dari semua poin yang pernah masuk; menukar poin tidak menurunkan tingkat.</Teks>
       </Kartu>
     </Layar>
   );
@@ -133,8 +150,11 @@ const st = StyleSheet.create({
   saldoLabel: { color: '#E1D8FF', fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
   saldoAngka: { fontFamily: hurufJudul, color: warna.putih, fontSize: 52, lineHeight: 60 },
   saldoTingkat: { color: warna.kuning, fontWeight: '800', fontSize: 15 },
-  bar: { height: 10, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.2)', marginTop: 12, overflow: 'hidden' },
-  barIsi: { height: 10, borderRadius: 5, backgroundColor: warna.kuning },
+  bar: { height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', marginTop: 12, overflow: 'hidden' },
+  penanda: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: '#FFFFFF' },
+  skala: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+  skalaTeks: { color: '#ECE6FF', fontSize: 12, fontVariant: ['tabular-nums'] },
+  barIsi: { height: 12, borderRadius: 6, backgroundColor: warna.kuning },
   saldoKet: { color: '#ECE6FF', fontSize: 13, marginTop: 6 },
   kecilTebal: { fontSize: 14, fontWeight: '800', color: warna.tinta },
   cap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' },

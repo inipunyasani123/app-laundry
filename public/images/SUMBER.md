@@ -1,20 +1,19 @@
 # Sumber gambar — Busa Ungu (demo app-laundry)
 
-Busa Ungu adalah usaha laundry fiktif. Semua nama, alamat, harga, dan data di aplikasi ini rekaan.
+Busa Ungu adalah usaha laundry fiktif. Semua nama, alamat, harga, nopol (AG 0000 BU), dan data di aplikasi ini rekaan.
 
-## Foto (CC0 / domain publik)
+## Foto
 
-| Berkas | Dipakai di | Sumber | Pembuat | Lisensi |
-| --- | --- | --- | --- | --- |
-| `jepit-jemuran.webp` (juga `assets/images/jepit-jemuran.webp` untuk native) | Ubin "Daftar harga" di beranda, kepala halaman Harga | [File:Plastic clothespins.jpg](https://commons.wikimedia.org/wiki/File:Plastic_clothespins.jpg) — Wikimedia Commons | Whitepixels | CC0 1.0 |
-
-Foto dipotong (720×338) dan diubah ke WebP. Tidak ada orang di foto.
+Tidak ada foto. Sejak 23 Okt 2026 ubin harga di beranda dan kepala halaman Harga memakai ilustrasi sendiri
+(sebelumnya foto CC0 "Plastic clothespins.jpg" oleh Whitepixels dari Wikimedia Commons, kini dihapus).
 
 ## Ilustrasi buatan sendiri
 
-Semua ikon, simbol tahap (gaya label perawatan pakaian), logo gugus busa, ilustrasi kurir berhelm (tanpa wajah),
-dan ilustrasi kaus kaki di halaman 404 digambar sendiri sebagai SVG di `src/components/ikon-data.ts` dan
-`src/app/+not-found.tsx`. Ikon aplikasi (`assets/icon.png`, `public/icon-*.png`, `public/ikon.svg`) dibuat dari logo yang sama.
+Semua digambar sendiri sebagai SVG di `src/components/ikon-data.ts`, `src/components/tanda.tsx`, dan `src/app/+not-found.tsx`:
+ikon, simbol tahap bergaya label perawatan pakaian, ikon item satuan (bed cover, selimut, sprei, jas, kebaya,
+gamis, sepatu, tas, boneka), jendela mesin cuci di halaman Status, tas cucian ungu bertiket gantung,
+timbangan cucian, logo gugus busa, kurir berhelm (tanpa wajah), dan kaus kaki di halaman 404.
+Ikon aplikasi (`assets/icon.png`, `public/icon-*.png`, `public/ikon.svg`) dibuat dari logo yang sama.
 `public/og.jpg` adalah tangkapan layar aplikasi ini sendiri.
 
 ## Huruf

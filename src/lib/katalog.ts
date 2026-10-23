@@ -98,7 +98,7 @@ export const PORSI_TAHAP: Record<KodeTahap, number> = {
   siap: 1,
 };
 
-export const KURIR = { nama: 'Bayu', motor: 'Motor bebek ungu · AG 4271 BU' };
+export const KURIR = { nama: 'Bayu', motor: 'Motor bebek ungu · AG 0000 BU (rekaan)' };
 
 export interface Voucher {
   kode: string;
@@ -108,10 +108,13 @@ export interface Voucher {
   nilai: number;
   maks?: number;
   hariBerlaku: number;
+  /** Hari WIB yang berlaku (0 = Minggu). Kosong = setiap hari. */
+  hari?: number[];
+  syarat?: string;
 }
 
 export const VOUCHER: Voucher[] = [
-  { kode: 'HEMATTENGAH', judul: 'Hemat tengah pekan', ket: 'Diskon 10% semua kiloan, maks Rp10.000', jenis: 'persen', nilai: 10, maks: 10000, hariBerlaku: 6 },
+  { kode: 'HEMATTENGAH', judul: 'Hemat tengah pekan', ket: 'Diskon 10% semua kiloan, maks Rp10.000', jenis: 'persen', nilai: 10, maks: 10000, hariBerlaku: 14, hari: [2, 3, 4], syarat: 'Hanya berlaku Selasa–Kamis' },
   { kode: 'BEDCOVER5', judul: 'Bed cover lebih ringan', ket: 'Potongan Rp5.000 untuk nota berisi bed cover', jenis: 'potong', nilai: 5000, hariBerlaku: 3 },
   { kode: 'ANTARJAUH', judul: 'Ongkir jauh gratis', ket: 'Bebas ongkir 3–6 km sekali pakai', jenis: 'ongkir', nilai: 5000, hariBerlaku: 10 },
 ];
@@ -122,9 +125,9 @@ export const TUKAR_POIN = [
 ];
 
 export const TINGKAT = [
-  { nama: 'Busa Bening', min: 0 },
-  { nama: 'Busa Lembut', min: 1000 },
-  { nama: 'Busa Wangi', min: 2500 },
+  { nama: 'Busa Bening', min: 0, manfaat: 'Poin tiap transaksi & kartu cap' },
+  { nama: 'Busa Lembut', min: 1000, manfaat: 'Jemput-antar 3–6 km gratis' },
+  { nama: 'Busa Wangi', min: 2500, manfaat: 'Pewangi premium gratis & jemput prioritas' },
 ];
 
 export function rupiah(n: number) {

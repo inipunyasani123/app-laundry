@@ -1,6 +1,6 @@
 import { Link, router, usePathname, type Href } from 'expo-router';
-import { useEffect, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, type ReactNode, type RefObject } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { useJarakAman } from '@/lib/aman';
 import { useBusa } from '@/lib/store';
 import { hurufJudul, sudut, warna } from '@/lib/tema';
@@ -9,11 +9,11 @@ import Ikon from './Ikon';
 import { LOGO, type NamaIkon } from './ikon-data';
 
 /** Pembungkus layar: landmark utama + area gulir. */
-export function Layar({ children, kepala, bawah, jarak = 14 }: { children: ReactNode; kepala?: ReactNode; bawah?: ReactNode; jarak?: number }) {
+export function Layar({ children, kepala, bawah, jarak = 14, refGulir }: { children: ReactNode; kepala?: ReactNode; bawah?: ReactNode; jarak?: number; refGulir?: RefObject<ScrollViewInstance | null> }) {
   return (
     <View role="main" nativeID="isi" style={k.layar}>
       {kepala}
-      <ScrollView style={k.gulir} contentContainerStyle={[k.isi, { gap: jarak }]} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={refGulir} style={k.gulir} contentContainerStyle={[k.isi, { gap: jarak }]} keyboardShouldPersistTaps="handled">
         {children}
       </ScrollView>
       {bawah}
@@ -121,7 +121,7 @@ export function Toast() {
     return () => clearTimeout(id);
   }, [toast?.id]);
   return (
-    <View role="region" aria-label="Pemberitahuan" style={[k.toastWadah, { top: 10 + atas }]} pointerEvents="box-none">
+    <View role="region" aria-label="Pemberitahuan" style={[k.toastWadah, { top: 70 + atas }]} pointerEvents="box-none">
       <View role="status" aria-live="polite">
       {toast ? (
         <View style={k.toast}>
