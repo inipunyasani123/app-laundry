@@ -44,7 +44,7 @@ export const SATUAN: ItemSatuan[] = [
   { kode: 'bedcover-b', nama: 'Bed cover besar', harga: 30000, ket: 'Ukuran 180–200 cm' },
   { kode: 'bedcover-k', nama: 'Bed cover kecil', harga: 22000, ket: 'Ukuran 100–160 cm' },
   { kode: 'selimut', nama: 'Selimut tebal', harga: 15000, ket: 'Per lembar' },
-  { kode: 'sprei', nama: 'Sprei + 2 sarung bantal', harga: 12000, ket: 'Satu set' },
+  { kode: 'sprei', nama: 'Sprei set', harga: 12000, ket: 'Sprei + 2 sarung bantal' },
   { kode: 'jas', nama: 'Jas / blazer', harga: 25000, ket: 'Dicuci kering, digantung' },
   { kode: 'kebaya', nama: 'Kebaya / gaun pesta', harga: 30000, ket: 'Dicek payet & renda dulu' },
   { kode: 'gamis', nama: 'Gamis / batik halus', harga: 15000, ket: 'Dicuci tangan' },

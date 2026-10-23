@@ -49,7 +49,7 @@ const PANDUAN = [
 ];
 
 const LANGKAH = ['Cucian', 'Jadwal', 'Catatan'];
-const koma = (n: number) => n.toFixed(1).replace('.', ',');
+const koma = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',');
 
 export default function Pesan() {
   const { siap, kini, cari, buatPesanan } = useBusa();
@@ -435,7 +435,7 @@ export default function Pesan() {
         ))}
         <View style={st.hasilPanduan} aria-live="polite">
           <Text style={st.opsiKet}>Perkiraan</Text>
-          <Text style={st.hasilAngka}>± {koma(perkiraanPanduan)} kg</Text>
+          <Text style={st.hasilAngka}>± {perkiraanPanduan.toFixed(1).replace('.', ',')} kg</Text>
         </View>
       </LembarBawah>
     </Layar>
@@ -540,7 +540,7 @@ const st = StyleSheet.create({
   tautanPanduan: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, alignSelf: 'flex-start', paddingHorizontal: 12, borderRadius: 22, backgroundColor: warna.unguMuda },
   tautanTeks: { fontSize: 14, fontWeight: '700', color: warna.unguTua },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  selItem: { width: '31.6%', flexGrow: 1, borderRadius: sudut.sedang, borderWidth: 1.5, borderColor: warna.garis, backgroundColor: warna.kartu, minHeight: 116 },
+  selItem: { width: '31%', borderRadius: sudut.sedang, borderWidth: 1.5, borderColor: warna.garis, backgroundColor: warna.kartu, minHeight: 116 },
   selItemAktif: { borderColor: warna.ungu, backgroundColor: '#F7F4FF' },
   selItemTekan: { flex: 1, alignItems: 'center', paddingTop: 12, paddingBottom: 10, paddingHorizontal: 6, gap: 4 },
   selItemNama: { fontSize: 13, lineHeight: 17, fontWeight: '700', color: warna.tinta, textAlign: 'center' },
